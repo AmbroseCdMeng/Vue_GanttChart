@@ -1,0 +1,374 @@
+<script src="https://cdn.bootcss.com/vue/2.6.10/vue.js"></script>
+<style>
+    table {
+        border-collapse: collapse;
+        border-width: 1;
+    }
+
+    p {
+        width: 100px;
+    }
+
+    th,
+    td {
+        min-width: 20px;
+        text-align: center;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #666;
+    }
+
+    th {
+        background-color: #34B4A0;
+    }
+
+    span {
+        border-radius: 50%;
+        height: 10px;
+        width: 10px;
+        display: block;
+        display: inline-block;
+    }
+
+    .yellow {
+        background-color: #F9A100;
+        border: #FCAA00 1px solid;
+    }
+
+    .green {
+        background-color: #34B4A0;
+        border: #46D8BC 1px solid;
+    }
+
+    .red {
+        background-color: #FF0D0D;
+        border: #FF2E2E 1px solid
+    }
+
+    .purple {
+        background-color: #8B64FF;
+        border: #8B64FF 1px solid;
+    }
+
+    .blue {
+        background-color: #299CED;
+        border: #299CED 1px solid;
+    }
+</style>
+<div id="demo">
+    <table>
+        <caption>Vue.JS 制作甘特图</caption>
+        <thead>
+            <tr>
+                <th rowspan="2" colspan="2">项目/时间</th>
+                <th :colspan="days(day)" v-for="(day, index) in AllMonths">{{day|longDateToMonth}}</th>
+            </tr>
+            <tr>
+                <th v-for="(day, index) in Dateinterval">{{day|longDateToDay}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in jsonData">
+                <td :rowspan="colNum(item, index)" v-if="showFormType(item, index)">
+                    <p>
+                        {{item.formType}}
+                    </p>
+                </td>
+                <td>
+                    <p>{{item.type}}</p>
+                </td>
+                <td v-for="day in Dateinterval">
+                    <span :class="spanShow(item.value, day).color" v-show="spanShow(item.value, day).show"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    var sourceData = [{
+            "formType": "DFM",
+            "type": "计划",
+            "value": [{
+                "fromDate": "2018-12-01",
+                "toDate": "2018-12-06",
+                "spanClass": "green"
+            }, {
+                "fromDate": "2018-12-10",
+                "toDate": "2018-12-11",
+                "spanClass": "green"
+            }, {
+                "fromDate": "2018-12-15",
+                "toDate": "2018-12-16",
+                "spanClass": "green"
+            }]
+        },
+        {
+            "formType": "DFM",
+            "type": "实际",
+            "value": [{
+                "fromDate": "2018-12-01",
+                "toDate": "2018-12-07",
+                "spanClass": "red"
+            }, {
+                "fromDate": "2018-12-10",
+                "toDate": "2018-12-11",
+                "spanClass": "blue"
+            }, {
+                "fromDate": "2018-12-15",
+                "toDate": "2018-12-16",
+                "spanClass": "blue"
+            }]
+        }, {
+            "formType": "DFM",
+            "type": "客户回复",
+            "value": [{
+                "fromDate": "2018-12-09",
+                "toDate": "2018-12-09",
+                "spanClass": "purple"
+            }, {
+                "fromDate": "2018-12-14",
+                "toDate": "2018-12-14",
+                "spanClass": "purple"
+            }, {
+                "fromDate": "2018-12-18",
+                "toDate": "2018-12-18",
+                "spanClass": "purple"
+            }]
+        },
+
+        {
+            "formType": "开模检讨",
+            "type": "实际",
+            "value": [{
+                "fromDate": "2018-12-20",
+                "toDate": "2018-12-20",
+                "spanClass": "yellow"
+            }]
+        },
+
+        {
+            "formType": "模具开发",
+            "type": "计划",
+            "value": [{
+                "fromDate": "2018-12-19",
+                "toDate": "2019-01-10",
+                "spanClass": "green"
+            }]
+        },
+        {
+            "formType": "模具开发",
+            "type": "实际",
+            "value": [{
+                "fromDate": "2018-12-19",
+                "toDate": "2019-01-13",
+                "spanClass": "red"
+            }]
+        }, {
+            "formType": "设计",
+            "type": "计划",
+            "value": [{
+                "fromDate": "2018-12-19",
+                "toDate": "2018-12-21",
+                "spanClass": "green"
+            }]
+        }, {
+            "formType": "设计",
+            "type": "实际",
+            "value": [{
+                "fromDate": "2018-12-19",
+                "toDate": "2018-12-21",
+                "spanClass": "yellow"
+            }]
+        }, {
+            "formType": "加工",
+            "type": "计划",
+            "value": [{
+                "fromDate": "2018-12-22",
+                "toDate": "2019-01-06",
+                "spanClass": "green"
+            }]
+        },
+        {
+            "formType": "加工",
+            "type": "客户回复",
+            "value": [{
+                "fromDate": "2018-12-22",
+                "toDate": "2019-01-08",
+                "spanClass": "purple"
+            }]
+        },
+        {
+            "formType": "加工",
+            "type": "实际",
+            "value": [{
+                "fromDate": "2018-12-22",
+                "toDate": "2019-01-09",
+                "spanClass": "red"
+            }]
+        },
+    ];
+</script>
+<script>
+    /**
+     * 日期格式化。
+     * 小于 10 的数字在前面 + 0。如 01、06
+     * */
+    var fDate = function (value) {
+        return value < 10 ? '0' + value : value;
+    }
+    /**
+     * 日期格式化：yyyy-mm-dd
+     * */
+    Date.prototype.format = function () {
+        return this.getFullYear() + '-' + fDate(this.getMonth() + 1) + '-' + fDate(this.getDate());
+    };
+
+    /**
+     * 获取指定时间段内所有天。
+     * 输入起止日期。格式：yyyy-mm-dd。
+     * 返回格式：yyyy-mm-dd
+     * */
+    var getAllDay = function (startDate, endDate) {
+        var allDays = [];
+        var a = startDate.split('-');
+        var b = endDate.split('-');
+        var uDb = new Date().setUTCFullYear(a[0], a[1] - 1, a[2]); //start
+        var uDe = new Date().setUTCFullYear(b[0], b[1] - 1, b[2]); //end
+        for (var i = uDb; i <= uDe; i = i + 24 * 60 * 60 * 1000) {
+            allDays.push(new Date(parseInt(i)).format());
+        }
+        return allDays;
+    };
+    /**
+     * 获取指定时间段内所有月。
+     * 输入起止日期。格式：yyyy-mm-dd。
+     * 返回格式：yyyy-mm
+     * */
+    var getAllMonth = function (startDate, endDate) {
+        var allMonth = [];
+        var a = startDate.split('-');
+        var b = endDate.split('-');
+        var uDb = new Date().setUTCFullYear(a[0], a[1] - 1, a[2]); //start
+        var uDe = new Date().setUTCFullYear(b[0], b[1] - 1, b[2]); //end
+        while (uDb < uDe) {
+            allMonth.push(new Date(uDb).getFullYear() + '-' + fDate(new Date(uDb).getMonth() + 1));
+            uDb = new Date(uDb).setMonth(new Date(uDb).getMonth() + 1);
+        }
+        return allMonth;
+    };
+</script>
+<script>
+    /**
+     * 创建 Vue 实例
+     * */
+    var demo = new Vue({
+        el: '#demo',
+        data: {
+            /**
+             * 数据源 JSON 对象数组
+             * 格式：
+             * [{
+             *  formType:'',        //数据类型1。可自动进行行合并
+             *  type:'',            //数据类型2。如需行合并需参照类型1自行优化
+             *  value:[{            //甘特图所需数据
+             *          fromDate:'',    //开始时间
+             *          toDate:'',      //截止时间
+             *          spanClass:''    //该段时间内的样式
+             *      },{
+             *          //允许有多组时间段。
+             *      }]
+             *  }]
+             * 
+             * */
+            jsonData: sourceData,
+            /*获取指定时间段内所有月，用作表头一*/
+            AllMonths: getAllMonth('2018-12-01', '2019-01-31'),
+            /*获取指定时间段内所有天，用作表头二*/
+            Dateinterval: getAllDay('2018-12-01', '2019-01-31'),
+        },
+        methods: {
+            /**
+             * 甘特图显示状况
+             * 传入参数：
+             *      1、甘特图所需数据数组。即上述 JSON 对象的 value 数组
+             *      2、当前日期，即此刻对应表头中的日期列。
+             *  */
+            spanShow: function (valArray, currentDate) {
+                /*默认不显示*/
+                var show = false;
+                /*默认样式颜色为空*/
+                var color = "";
+                /*调用 Vue 过滤器*/
+                var filter = this.$options.filters['strDateToTimeStamp'];
+                /*循环 value 数据。判断当前对应日期是否位于该组 value 数据的 fromdate 与 todate 之间。*/
+                for (var i = 0; i < valArray.length; i++) {
+                    var inInterval = false;
+                    inInterval = filter(valArray[i].fromDate) <= filter(currentDate) && filter(
+                        currentDate) <= filter(valArray[i].toDate)
+                    if (inInterval) {
+                        color = valArray[i].spanClass;
+                    }
+                    show = show || inInterval;
+                }
+                /*返回判断结果与当前日期在该组数据下对应的样式颜色*/
+                return {
+                    show: show,
+                    color: color
+                };
+            },
+            /**
+             * 计算指定月份的总天数。
+             * 这里需要根据指定月的总天数确定合并表头一时跨列的数量
+             * 传入参数：指定月份。格式 yyyy-mm
+             * */
+            days: function (strDate) {
+                var arr = strDate.split('-');
+                return new Date(arr[0], arr[1], 0).getDate(); //取当前月的最后一天，即本月天数
+            },
+            /**
+             * 表单类型显示状态。
+             * 即第一列。
+             * */
+            showFormType: function (item, index) {
+                /*与下一组数据的类型相同时，不显示*/
+                var show = true;
+                if (index > 0 && item.formType == this.jsonData[index - 1]
+                    .formType) {
+                    show = false;
+                }
+                return show;
+            },
+            /**
+             * 表单类型需要跨行的数量。
+             * 用于自动合并第一列的类型
+             * */
+            colNum: function (item, index) {
+                var iCount = 0;
+                if (!(index > 0 && item.formType == this.jsonData[index - 1]
+                        .formType)) {
+                    this.jsonData.forEach(ele => {
+                        if (item.formType == ele.formType) {
+                            iCount++;
+                        }
+                    });
+                }
+                return iCount;
+            }
+        },
+        /*Vue 过滤器用于格式化日期*/
+        filters: {
+            /*字符串格式的日期转为时间戳*/
+            strDateToTimeStamp: function (strDate) {
+                return Date.parse(strDate);
+            },
+            /*字符串格式的日期转为天。yyyy-mm-dd  -->  dd*/
+            longDateToDay: function (longDate) {
+                return fDate(new Date(Date.parse(longDate)).getDate());
+            },
+            /*字符串格式的日期转为月。yyyy-mm-dd  -->  mm*/
+            longDateToMonth: function (longDate) {
+                return fDate(new Date(Date.parse(longDate)).getMonth() + 1);
+            }
+        }
+    })
+</script>
