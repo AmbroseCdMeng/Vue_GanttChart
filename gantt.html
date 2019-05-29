@@ -78,6 +78,7 @@
                     <p>{{item.type}}</p>
                 </td>
                 <td v-for="day in Dateinterval">
+                    <!-- v-show 属性可以去掉，但此处加上是为了区分无 class 栏位和无数据栏位，方便后期追加默认样式显示 -->
                     <span :class="spanShow(item.value, day).color" v-show="spanShow(item.value, day).show"></span>
                 </td>
             </tr>
@@ -85,128 +86,132 @@
     </table>
 </div>
 <script>
-    var sourceData = [{
-            "formType": "DFM",
-            "type": "计划",
-            "value": [{
-                "fromDate": "2018-12-01",
-                "toDate": "2018-12-06",
-                "spanClass": "green"
+    var sourceData = {
+        'startDate': '2018-12-01',
+        'endDate': '2019-01-31',
+        'data': [{
+                "formType": "DFM",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-01",
+                    "toDate": "2018-12-06",
+                    "spanClass": "green"
+                }, {
+                    "fromDate": "2018-12-10",
+                    "toDate": "2018-12-11",
+                    "spanClass": "green"
+                }, {
+                    "fromDate": "2018-12-15",
+                    "toDate": "2018-12-16",
+                    "spanClass": "green"
+                }]
+            },
+            {
+                "formType": "DFM",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-01",
+                    "toDate": "2018-12-07",
+                    "spanClass": "red"
+                }, {
+                    "fromDate": "2018-12-10",
+                    "toDate": "2018-12-11",
+                    "spanClass": "blue"
+                }, {
+                    "fromDate": "2018-12-15",
+                    "toDate": "2018-12-16",
+                    "spanClass": "blue"
+                }]
             }, {
-                "fromDate": "2018-12-10",
-                "toDate": "2018-12-11",
-                "spanClass": "green"
-            }, {
-                "fromDate": "2018-12-15",
-                "toDate": "2018-12-16",
-                "spanClass": "green"
-            }]
-        },
-        {
-            "formType": "DFM",
-            "type": "实际",
-            "value": [{
-                "fromDate": "2018-12-01",
-                "toDate": "2018-12-07",
-                "spanClass": "red"
-            }, {
-                "fromDate": "2018-12-10",
-                "toDate": "2018-12-11",
-                "spanClass": "blue"
-            }, {
-                "fromDate": "2018-12-15",
-                "toDate": "2018-12-16",
-                "spanClass": "blue"
-            }]
-        }, {
-            "formType": "DFM",
-            "type": "客户回复",
-            "value": [{
-                "fromDate": "2018-12-09",
-                "toDate": "2018-12-09",
-                "spanClass": "purple"
-            }, {
-                "fromDate": "2018-12-14",
-                "toDate": "2018-12-14",
-                "spanClass": "purple"
-            }, {
-                "fromDate": "2018-12-18",
-                "toDate": "2018-12-18",
-                "spanClass": "purple"
-            }]
-        },
+                "formType": "DFM",
+                "type": "客户回复",
+                "value": [{
+                    "fromDate": "2018-12-09",
+                    "toDate": "2018-12-09",
+                    "spanClass": "purple"
+                }, {
+                    "fromDate": "2018-12-14",
+                    "toDate": "2018-12-14",
+                    "spanClass": "purple"
+                }, {
+                    "fromDate": "2018-12-18",
+                    "toDate": "2018-12-18",
+                    "spanClass": "purple"
+                }]
+            },
 
-        {
-            "formType": "开模检讨",
-            "type": "实际",
-            "value": [{
-                "fromDate": "2018-12-20",
-                "toDate": "2018-12-20",
-                "spanClass": "yellow"
-            }]
-        },
+            {
+                "formType": "开模检讨",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-20",
+                    "toDate": "2018-12-20",
+                    "spanClass": "yellow"
+                }]
+            },
 
-        {
-            "formType": "模具开发",
-            "type": "计划",
-            "value": [{
-                "fromDate": "2018-12-19",
-                "toDate": "2019-01-10",
-                "spanClass": "green"
-            }]
-        },
-        {
-            "formType": "模具开发",
-            "type": "实际",
-            "value": [{
-                "fromDate": "2018-12-19",
-                "toDate": "2019-01-13",
-                "spanClass": "red"
-            }]
-        }, {
-            "formType": "设计",
-            "type": "计划",
-            "value": [{
-                "fromDate": "2018-12-19",
-                "toDate": "2018-12-21",
-                "spanClass": "green"
-            }]
-        }, {
-            "formType": "设计",
-            "type": "实际",
-            "value": [{
-                "fromDate": "2018-12-19",
-                "toDate": "2018-12-21",
-                "spanClass": "yellow"
-            }]
-        }, {
-            "formType": "加工",
-            "type": "计划",
-            "value": [{
-                "fromDate": "2018-12-22",
-                "toDate": "2019-01-06",
-                "spanClass": "green"
-            }]
-        },
-        {
-            "formType": "加工",
-            "type": "客户回复",
-            "value": [{
-                "fromDate": "2018-12-22",
-                "toDate": "2019-01-08",
-                "spanClass": "purple"
-            }]
-        },
-        {
-            "formType": "加工",
-            "type": "实际",
-            "value": [{
-                "fromDate": "2018-12-22",
-                "toDate": "2019-01-09",
-                "spanClass": "red"
-            }]
-        },
-    ];
+            {
+                "formType": "模具开发",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2019-01-10",
+                    "spanClass": "green"
+                }]
+            },
+            {
+                "formType": "模具开发",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2019-01-13",
+                    "spanClass": "red"
+                }]
+            }, {
+                "formType": "设计",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2018-12-21",
+                    "spanClass": "green"
+                }]
+            }, {
+                "formType": "设计",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2018-12-21",
+                    "spanClass": "yellow"
+                }]
+            }, {
+                "formType": "加工",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-22",
+                    "toDate": "2019-01-06",
+                    "spanClass": "green"
+                }]
+            },
+            {
+                "formType": "加工",
+                "type": "客户回复",
+                "value": [{
+                    "fromDate": "2018-12-22",
+                    "toDate": "2019-01-08",
+                    "spanClass": "purple"
+                }]
+            },
+            {
+                "formType": "加工",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-22",
+                    "toDate": "2019-01-09",
+                    "spanClass": "red"
+                }]
+            },
+        ],
+    };
 </script>
 <script>
     /**
@@ -249,8 +254,8 @@
         var a = startDate.split('-');
         var b = endDate.split('-');
         var uDb = new Date().setUTCFullYear(a[0], a[1] - 1, a[2]); //start
-        var uDe = new Date().setUTCFullYear(b[0], b[1] - 1, b[2]); //end
-        while (uDb < uDe) {
+        var uDe = new Date().setUTCFullYear(b[0], b[1] - 1, new Date(b[0], b[1], 0).getDate()); //结束月份设置为指定月最后一天
+        while (uDb <= uDe) { // 等于号防止 31 号计算遗漏
             allMonth.push(new Date(uDb).getFullYear() + '-' + fDate(new Date(uDb).getMonth() + 1));
             uDb = new Date(uDb).setMonth(new Date(uDb).getMonth() + 1);
         }
@@ -267,24 +272,30 @@
             /**
              * 数据源 JSON 对象数组
              * 格式：
-             * [{
-             *  formType:'',        //数据类型1。可自动进行行合并
-             *  type:'',            //数据类型2。如需行合并需参照类型1自行优化
-             *  value:[{            //甘特图所需数据
-             *          fromDate:'',    //开始时间
-             *          toDate:'',      //截止时间
-             *          spanClass:''    //该段时间内的样式
-             *      },{
-             *          //允许有多组时间段。
+             * {
+             *  startDate:'',        //开始日期（表头所用）
+             *  endDate:''           //结束日期（表头所用）
+             *  data:[{
+             *      formType:'',        //数据类型1。可自动进行行合并
+             *      type:'',            //数据类型2。如需行合并需参照类型1自行优化
+             *      value:[{            //甘特图所需数据
+             *              fromDate:'',    //开始时间
+             *              toDate:'',      //截止时间
+             *              spanClass:''    //该段时间内的样式
+             *          },{
+             *              //允许有多组时间段。
+             *          }]
              *      }]
-             *  }]
+             *  }
              * 
              * */
-            jsonData: sourceData,
+            jsonData: sourceData.data,
+            startDate: sourceData.startDate,
+            endDate: sourceData.endDate,
             /*获取指定时间段内所有月，用作表头一*/
-            AllMonths: getAllMonth('2018-12-01', '2019-01-31'),
+            AllMonths: getAllMonth(sourceData.startDate, sourceData.endDate),
             /*获取指定时间段内所有天，用作表头二*/
-            Dateinterval: getAllDay('2018-12-01', '2019-01-31'),
+            Dateinterval: getAllDay(sourceData.startDate, sourceData.endDate),
         },
         methods: {
             /**
@@ -317,12 +328,30 @@
                 };
             },
             /**
-             * 计算指定月份的总天数。
+             * 计算指定时间段内指定月份的总天数。
              * 这里需要根据指定月的总天数确定合并表头一时跨列的数量
              * 传入参数：指定月份。格式 yyyy-mm
              * */
             days: function (strDate) {
+                debugger;
+                var sArr = this.startDate.split('-');
+                var eArr = this.endDate.split('-');
                 var arr = strDate.split('-');
+                //指定月份不在指定时间段内
+                if ('' + arr[0] + arr[1] < '' + sArr[0] + sArr[1] || '' + arr[0] + arr[1] > '' + eArr[0] +
+                    eArr[1]) {
+                    return 0;
+                }
+                //指定月份等于开始时间段的月份时，返回本月剩余天数 = 本月最后一天 - 开始日期 + 1
+                if ('' + arr[0] + arr[1] === '' + sArr[0] + sArr[1]) {
+                    return new Date(arr[0], arr[1], 0).getDate() - new Date(sArr[0] + '-' + sArr[1] + '-' +
+                            sArr[2])
+                        .getDate() + 1;
+                }
+                //指定月份等于结束时间段的月份时，返回时间段内本月有效天数 = 结束日期
+                if ('' + arr[0] + arr[1] === '' + eArr[0] + eArr[1]) {
+                    return new Date(eArr[0] + '-' + eArr[1] + '-' + eArr[2]).getDate()
+                }
                 return new Date(arr[0], arr[1], 0).getDate(); //取当前月的最后一天，即本月天数
             },
             /**

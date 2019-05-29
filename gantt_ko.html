@@ -1,0 +1,356 @@
+<script src="https://cdn.bootcss.com/knockout/3.4.2/knockout-debug.js"></script>
+
+<style>
+    table {
+        border-collapse: collapse;
+        border-width: 1;
+    }
+
+    p {
+        width: 100px;
+    }
+
+    th,
+    td {
+        min-width: 20px;
+        text-align: center;
+        border-width: 1px;
+        border-style: solid;
+        border-color: #666;
+    }
+
+    th {
+        background-color: #34B4A0;
+    }
+
+    span {
+        border-radius: 50%;
+        height: 10px;
+        width: 10px;
+        display: block;
+        display: inline-block;
+    }
+
+    .yellow {
+        background-color: #F9A100;
+        border: #FCAA00 1px solid;
+    }
+
+    .green {
+        background-color: #34B4A0;
+        border: #46D8BC 1px solid;
+    }
+
+    .red {
+        background-color: #FF0D0D;
+        border: #FF2E2E 1px solid
+    }
+
+    .purple {
+        background-color: #8B64FF;
+        border: #8B64FF 1px solid;
+    }
+
+    .blue {
+        background-color: #299CED;
+        border: #299CED 1px solid;
+    }
+</style>
+<div id="demo">
+    <table>
+        <caption>knockout.js 制作甘特图</caption>
+        <thead>
+            <tr>
+                <th rowspan="2" colspan="2">项目/时间</th>
+                <!-- ko foreach:AllMonths -->
+                <th data-bind="html:longDateToMonth($data), attr:{colspan:vm.days($data)}"></th>
+                <!-- /ko -->
+            </tr>
+            <tr>
+                <!-- ko foreach:Dateinterval -->
+                <th data-bind="html:longDateToDay($data)"></th>
+                <!-- /ko -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ko foreach:{data:jsonData, as: 'jd'} -->
+            <tr>
+                <td data-bind="visible:vm.showFormType($data, $index()), attr:{rowspan:vm.colNum($data, $index())}">
+                    <p data-bind="html:formType"></p>
+                </td>
+                <td>
+                    <p data-bind="html:type"></p>
+                </td>
+                <!-- ko foreach:{data:vm.Dateinterval, as: 'di'} -->
+                <td>
+                    <!-- 注释 start  -->
+                    <!-- 用于显示当前类型(行)下当前组(颜色相同)的点的数量。预计使用 tip 提示。暂时使用 span 先取得数字，tip 样式后期修改。这里计算的天数在特殊情况下有个小问题。 -->
+                    <!-- <span data-bind="html:vm.spanShow(jd.value, $data).count"></span> -->
+                    <!-- 注释 end -->
+                    <span data-bind="css:vm.spanShow(jd.value, $data).color"></span>
+                    <!-- 注释 start  -->
+                    <!-- 这个绑定暂时不需要。后续如果需要区分有数据无颜色 和 无数据 两种情况时绑定这个即可  -->
+                    <!-- data-bind="visible:vm.spanShow(jd.value, $data).show" -->
+                    <!-- 注释 end -->
+                </td>
+                <!-- /ko -->
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+</div>
+<script>
+    var sourceData = {
+        'startDate': '2018-12-01',
+        'endDate': '2019-01-19',
+        'data': [{
+                "formType": "DFM",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-01",
+                    "toDate": "2018-12-06",
+                    "spanClass": "green"
+                }, {
+                    "fromDate": "2018-12-10",
+                    "toDate": "2018-12-11",
+                    "spanClass": "green"
+                }, {
+                    "fromDate": "2018-12-15",
+                    "toDate": "2018-12-16",
+                    "spanClass": "green"
+                }]
+            },
+            {
+                "formType": "DFM",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-01",
+                    "toDate": "2018-12-07",
+                    "spanClass": "red"
+                }, {
+                    "fromDate": "2018-12-10",
+                    "toDate": "2018-12-11",
+                    "spanClass": "blue"
+                }, {
+                    "fromDate": "2018-12-15",
+                    "toDate": "2018-12-16",
+                    "spanClass": "blue"
+                }]
+            }, {
+                "formType": "DFM",
+                "type": "客户回复",
+                "value": [{
+                    "fromDate": "2018-12-09",
+                    "toDate": "2018-12-09",
+                    "spanClass": "purple"
+                }, {
+                    "fromDate": "2018-12-14",
+                    "toDate": "2018-12-14",
+                    "spanClass": "purple"
+                }, {
+                    "fromDate": "2018-12-18",
+                    "toDate": "2018-12-18",
+                    "spanClass": "purple"
+                }]
+            },
+
+            {
+                "formType": "开模检讨",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-20",
+                    "toDate": "2018-12-20",
+                    "spanClass": "yellow"
+                }]
+            },
+
+            {
+                "formType": "模具开发",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2019-01-10",
+                    "spanClass": "green"
+                }]
+            },
+            {
+                "formType": "模具开发",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2019-01-13",
+                    "spanClass": "red"
+                }]
+            }, {
+                "formType": "设计",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2018-12-21",
+                    "spanClass": "green"
+                }]
+            }, {
+                "formType": "设计",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-19",
+                    "toDate": "2018-12-21",
+                    "spanClass": "yellow"
+                }]
+            }, {
+                "formType": "加工",
+                "type": "计划",
+                "value": [{
+                    "fromDate": "2018-12-22",
+                    "toDate": "2019-01-06",
+                    "spanClass": "green"
+                }]
+            },
+            {
+                "formType": "加工",
+                "type": "客户回复",
+                "value": [{
+                    "fromDate": "2018-12-22",
+                    "toDate": "2019-01-08",
+                    "spanClass": "purple"
+                }]
+            },
+            {
+                "formType": "加工",
+                "type": "实际",
+                "value": [{
+                    "fromDate": "2018-12-22",
+                    "toDate": "2019-01-09",
+                    "spanClass": "red"
+                }]
+            },
+        ],
+    };
+</script>
+<script>
+    var fDate = function (value) {
+        return value < 10 ? '0' + value : value;
+    }
+
+    Date.prototype.format = function () {
+        return this.getFullYear() + '-' + fDate(this.getMonth() + 1) + '-' + fDate(this.getDate());
+    };
+
+    var getAllDay = function (startDate, endDate) {
+        var allDays = [];
+        var a = startDate.split('-');
+        var b = endDate.split('-');
+        var uDb = new Date().setUTCFullYear(a[0], a[1] - 1, a[2]);
+        var uDe = new Date().setUTCFullYear(b[0], b[1] - 1, b[2]);
+        for (var i = uDb; i <= uDe; i = i + 24 * 60 * 60 * 1000) {
+            allDays.push(new Date(parseInt(i)).format());
+        }
+        return allDays;
+    };
+
+    var getAllMonth = function (startDate, endDate) {
+        var allMonth = [];
+        var a = startDate.split('-');
+        var b = endDate.split('-');
+        var uDb = new Date().setUTCFullYear(a[0], a[1] - 1, a[2]);
+        var uDe = new Date().setUTCFullYear(b[0], b[1] - 1, new Date(b[0], b[1], 0).getDate());
+        while (uDb <= uDe) {
+            allMonth.push(new Date(uDb).getFullYear() + '-' + fDate(new Date(uDb).getMonth() + 1));
+            uDb = new Date(uDb).setMonth(new Date(uDb).getMonth() + 1);
+        }
+        return allMonth;
+    };
+
+    var strDateToTimeStamp = function (strDate) {
+        return Date.parse(strDate);
+    };
+
+    var longDateToDay = function (longDate) {
+        return fDate(new Date(Date.parse(longDate)).getDate());
+    };
+
+
+    var longDateToMonth = function (longDate) {
+        return fDate(new Date(Date.parse(longDate)).getMonth() + 1);
+    };
+</script>
+<script>
+    var viewModel = function () {
+        var self = this;
+        self.jsonData = ko.observableArray([]);
+        self.startDate = ko.observable();
+        self.endDate = ko.observable();
+        self.AllMonths = ko.observable();
+        self.Dateinterval = ko.observable();
+    };
+    var vm = new viewModel();
+
+    vm.jsonData(sourceData.data);
+    vm.startDate(sourceData.startDate);
+    vm.endDate(sourceData.endDate);
+    vm.AllMonths(getAllMonth(sourceData.startDate, sourceData.endDate));
+    vm.Dateinterval(getAllDay(sourceData.startDate, sourceData.endDate));
+
+    vm.spanShow = function (valArray, currentDate) {
+        var show = false;
+        var color = "",
+            count = '';
+        for (var i = 0; i < valArray.length; i++) {
+            var inInterval = false;
+            inInterval = strDateToTimeStamp(valArray[i].fromDate) <= strDateToTimeStamp(currentDate) &&
+                strDateToTimeStamp(
+                    currentDate) <= strDateToTimeStamp(valArray[i].toDate)
+            if (inInterval) {
+                color = valArray[i].spanClass;
+                count = (new Date(valArray[i].toDate) - new Date(valArray[i].fromDate)) / (1000 * 60 * 60 * 24) + 1;
+            }
+            show = show || inInterval;
+        }
+        return {
+            show: show,
+            color: color,
+            count: count,
+        };
+    };
+
+    vm.days = function (strDate) {
+        var sArr = vm.startDate().split('-');
+        var eArr = vm.endDate().split('-');
+        var arr = strDate.split('-');
+        if ('' + arr[0] + arr[1] < '' + sArr[0] + sArr[1] || '' + arr[0] + arr[1] > '' +
+            eArr[0] + eArr[1]) {
+            return 0;
+        }
+        if ('' + arr[0] + arr[1] === '' + sArr[0] + sArr[1]) {
+            return new Date(arr[0], arr[1], 0).getDate() - new Date(sArr[0] + '-' + sArr[1] + '-' + sArr[2])
+                .getDate() + 1;
+        }
+        if ('' + arr[0] + arr[1] === '' + eArr[0] + eArr[1]) {
+            return new Date(eArr[0] + '-' + eArr[1] + '-' + eArr[2]).getDate()
+        }
+        return new Date(arr[0], arr[1], 0).getDate();
+    };
+
+    vm.showFormType = function (item, index) {
+        var show = true;
+        if (index > 0 && item.formType == vm.jsonData()[index - 1].formType) {
+            show = false;
+        }
+        return show;
+    };
+
+    vm.colNum = function (item, index) {
+        var iCount = 0;
+        if (!(index > 0 && item.formType == vm.jsonData()[index - 1]
+                .formType)) {
+            vm.jsonData().forEach(ele => {
+                if (item.formType == ele.formType) {
+                    iCount++;
+                }
+            });
+        }
+        return iCount;
+    };
+
+    ko.applyBindings(vm);
+</script>
