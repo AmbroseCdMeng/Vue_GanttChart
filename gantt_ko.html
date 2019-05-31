@@ -23,7 +23,7 @@
         background-color: #34B4A0;
     }
 
-    span {
+    span.color_info {
         border-radius: 50%;
         height: 10px;
         width: 10px;
@@ -55,6 +55,34 @@
         background-color: #299CED;
         border: #299CED 1px solid;
     }
+
+    /*tip 层样式*/
+    span.tip_info {
+        display: none;
+        border-bottom-style: solid;
+        border-bottom-color: #000;
+        border-radius: 5px;
+        background-color: #5a98de;
+        box-shadow: 1px 1px 50px rgba(0, 0, 0, .3);
+        width: 210px;
+        height: 36px;
+        z-index: 3;
+    }
+
+    .parenthover {
+        position: relative;
+    }
+
+    .parenthover:hover span.tip_info {
+        display: block;
+        border: 1px solid #5a98de;
+        background-color: #5a98de;
+        padding: 10px 20px;
+        position: absolute;
+        top: 11px;
+        left: 30px;
+        color: #FFF
+    }
 </style>
 <div id="demo">
     <table>
@@ -82,16 +110,11 @@
                     <p data-bind="html:type"></p>
                 </td>
                 <!-- ko foreach:{data:vm.Dateinterval, as: 'di'} -->
-                <td>
-                    <!-- 注释 start  -->
-                    <!-- 用于显示当前类型(行)下当前组(颜色相同)的点的数量。预计使用 tip 提示。暂时使用 span 先取得数字，tip 样式后期修改。这里计算的天数在特殊情况下有个小问题。 -->
-                    <!-- <span data-bind="html:vm.spanShow(jd.value, $data).count"></span> -->
-                    <!-- 注释 end -->
-                    <span data-bind="css:vm.spanShow(jd.value, $data).color"></span>
-                    <!-- 注释 start  -->
-                    <!-- 这个绑定暂时不需要。后续如果需要区分有数据无颜色 和 无数据 两种情况时绑定这个即可  -->
-                    <!-- data-bind="visible:vm.spanShow(jd.value, $data).show" -->
-                    <!-- 注释 end -->
+                <td class="parenthover">
+                    <!-- ko if: vm.spanShow(jd.value, $data).show -->
+                    <span class="tip_info" data-bind="html:vm.showTips(jd.valueTip, $data)"></span>
+                    <!-- /ko -->
+                    <span class="color_info" data-bind="css:vm.spanShow(jd.value, $data).color"></span>
                 </td>
                 <!-- /ko -->
             </tr>
@@ -118,6 +141,16 @@
                     "fromDate": "2018-12-15",
                     "toDate": "2018-12-16",
                     "spanClass": "green"
+                }],
+                "valueTip": [{
+                    "date": "2018-12-01",
+                    "remark": "我是DFM计划12月01日的提示"
+                },{
+                    "date": "2018-12-05",
+                    "remark": "我是DFM计划12月05日的提示"
+                },{
+                    "date": "2018-12-16",
+                    "remark": "我是DFM计划12月16日的提示"
                 }]
             },
             {
@@ -135,7 +168,8 @@
                     "fromDate": "2018-12-15",
                     "toDate": "2018-12-16",
                     "spanClass": "blue"
-                }]
+                }],
+               "valueTip": []
             }, {
                 "formType": "DFM",
                 "type": "客户回复",
@@ -151,7 +185,14 @@
                     "fromDate": "2018-12-18",
                     "toDate": "2018-12-18",
                     "spanClass": "purple"
-                }]
+                }],
+                "valueTip": [{ 
+                    "date": "2018-12-09",
+                    "remark": "我是DFM客户回复12月09日的提示"
+                    },{ 
+                    "date": "2018-12-18",
+                    "remark": "我是DFM客户回复12月18日的提示"
+                    }]
             },
 
             {
@@ -161,7 +202,8 @@
                     "fromDate": "2018-12-20",
                     "toDate": "2018-12-20",
                     "spanClass": "yellow"
-                }]
+                }],
+                "valueTip": []
             },
 
             {
@@ -171,7 +213,8 @@
                     "fromDate": "2018-12-19",
                     "toDate": "2019-01-10",
                     "spanClass": "green"
-                }]
+                }],
+                "valueTip": []
             },
             {
                 "formType": "模具开发",
@@ -180,7 +223,8 @@
                     "fromDate": "2018-12-19",
                     "toDate": "2019-01-13",
                     "spanClass": "red"
-                }]
+                }],
+                "valueTip": []
             }, {
                 "formType": "设计",
                 "type": "计划",
@@ -188,7 +232,8 @@
                     "fromDate": "2018-12-19",
                     "toDate": "2018-12-21",
                     "spanClass": "green"
-                }]
+                }],
+                "valueTip": []
             }, {
                 "formType": "设计",
                 "type": "实际",
@@ -196,7 +241,8 @@
                     "fromDate": "2018-12-19",
                     "toDate": "2018-12-21",
                     "spanClass": "yellow"
-                }]
+                }],
+                "valueTip": []
             }, {
                 "formType": "加工",
                 "type": "计划",
@@ -204,7 +250,8 @@
                     "fromDate": "2018-12-22",
                     "toDate": "2019-01-06",
                     "spanClass": "green"
-                }]
+                }],
+                "valueTip": []
             },
             {
                 "formType": "加工",
@@ -213,7 +260,8 @@
                     "fromDate": "2018-12-22",
                     "toDate": "2019-01-08",
                     "spanClass": "purple"
-                }]
+                }],
+                "valueTip": []
             },
             {
                 "formType": "加工",
@@ -222,7 +270,8 @@
                     "fromDate": "2018-12-22",
                     "toDate": "2019-01-09",
                     "spanClass": "red"
-                }]
+                }],
+                "valueTip": []
             },
         ],
     };
@@ -312,6 +361,17 @@
             count: count,
         };
     };
+
+    vm.showTips = function(valueTip, currentDate){
+        var tips = '';
+        console.log(valueTip)
+        valueTip.forEach(ele => {
+            if(ele.date === currentDate){
+                tips = ele.remark;
+            }
+        })
+        return tips;
+    }
 
     vm.days = function (strDate) {
         var sArr = vm.startDate().split('-');
