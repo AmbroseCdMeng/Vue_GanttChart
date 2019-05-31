@@ -111,7 +111,7 @@
                 </td>
                 <!-- ko foreach:{data:vm.Dateinterval, as: 'di'} -->
                 <td class="parenthover">
-                    <!-- ko if: vm.spanShow(jd.value, $data).show -->
+                    <!-- ko if: (vm.spanShow(jd.value, $data).show && vm.showTips(jd.valueTip, $data) !== '') -->
                     <span class="tip_info" data-bind="html:vm.showTips(jd.valueTip, $data)"></span>
                     <!-- /ko -->
                     <span class="color_info" data-bind="css:vm.spanShow(jd.value, $data).color"></span>
