@@ -1,1 +1,1 @@
-"# Vue_GanttChart" 
+# Vue_GanttChart
